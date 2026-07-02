@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Home Services</title>
+    <link rel="stylesheet" href="styles.css?v=1">
+  </head>
+  <body>
+    <header class="hero" id="hero">
+      <div class="hero__shade"></div>
+      <div class="hero__content">
+        <div>
+          <p class="eyebrow">Home network</p>
+          <h1 id="pageTitle">Home Services</h1>
+        </div>
+        <button class="icon-button edit-toggle" id="editToggle" type="button" aria-pressed="false" title="Edit services">
+          <span aria-hidden="true">✎</span>
+          <span>Edit</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="settings" id="settingsPanel" aria-label="Page settings">
+        <div class="settings__grid">
+          <label>
+            <span>Title</span>
+            <input id="titleInput" type="text" maxlength="64" placeholder="Home Services">
+          </label>
+          <label>
+            <span>Banner image</span>
+            <input id="bannerInput" type="file" accept="image/*">
+          </label>
+          <button id="removeBanner" class="ghost-button" type="button">Remove banner</button>
+        </div>
+      </section>
+
+      <section class="add-service" id="addPanel" aria-label="Add service">
+        <form id="sectionForm" class="section-form">
+          <label>
+            <span>Section header</span>
+            <input id="sectionTitle" type="text" maxlength="48" placeholder="Media">
+          </label>
+          <button class="secondary-button" type="submit">Add section</button>
+        </form>
+        <form id="tileForm" class="tile-form">
+          <label>
+            <span>Title</span>
+            <input id="tileTitle" type="text" maxlength="40" placeholder="Plex" required>
+          </label>
+          <label>
+            <span>URL</span>
+            <input id="tileUrl" type="url" placeholder="https://plex.local" required>
+          </label>
+          <label>
+            <span>Tile image</span>
+            <input id="tileImage" type="file" accept="image/*" required>
+          </label>
+          <label>
+            <span>Section</span>
+            <select id="tileSection"></select>
+          </label>
+          <button class="primary-button" type="submit">Add tile</button>
+        </form>
+      </section>
+
+      <section class="services" aria-label="Services">
+        <div class="sections" id="sections"></div>
+        <div class="empty-state" id="emptyState">
+          <h2>No services yet</h2>
+          <p>Use Edit to add sections and service tiles for this browser.</p>
+        </div>
+      </section>
+    </main>
+
+    <template id="sectionTemplate">
+      <section class="service-section">
+        <div class="service-section__header">
+          <h2 class="service-section__title"></h2>
+          <div class="service-section__actions" aria-label="Section actions">
+            <button class="section-action" data-section-action="up" type="button" title="Move section up">↑</button>
+            <button class="section-action" data-section-action="down" type="button" title="Move section down">↓</button>
+            <button class="section-action section-action--danger" data-section-action="delete" type="button" title="Delete section">×</button>
+          </div>
+        </div>
+        <div class="tiles"></div>
+      </section>
+    </template>
+
+    <template id="tileTemplate">
+      <article class="tile">
+        <a class="tile__link" target="_blank" rel="noreferrer">
+          <img class="tile__image" alt="">
+          <span class="tile__title"></span>
+        </a>
+        <div class="tile__actions" aria-label="Tile actions">
+          <button class="tile__action" data-action="up" type="button" title="Move up">↑</button>
+          <button class="tile__action" data-action="down" type="button" title="Move down">↓</button>
+          <select class="tile__move" data-action="move" title="Move to section"></select>
+          <button class="tile__action tile__action--danger" data-action="delete" type="button" title="Delete">×</button>
+        </div>
+      </article>
+    </template>
+
+    <script src="app.js?v=1"></script>
+  </body>
+</html>
