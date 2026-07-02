@@ -1,7 +1,9 @@
 const STORAGE_KEY = "home-network-landing-page";
 const DEFAULT_SECTION_TITLE = "Services";
+const DEFAULT_PAGE_ICON = "assets/home-apps.svg";
 const DEFAULT_STATE = {
   title: "Home Services",
+  icon: "",
   banner: "",
   sections: []
 };
@@ -10,10 +12,13 @@ const state = loadState();
 
 const elements = {
   hero: document.getElementById("hero"),
+  pageIcon: document.getElementById("pageIcon"),
   pageTitle: document.getElementById("pageTitle"),
   editToggle: document.getElementById("editToggle"),
   titleInput: document.getElementById("titleInput"),
+  iconInput: document.getElementById("iconInput"),
   bannerInput: document.getElementById("bannerInput"),
+  removeIcon: document.getElementById("removeIcon"),
   removeBanner: document.getElementById("removeBanner"),
   sectionForm: document.getElementById("sectionForm"),
   sectionTitle: document.getElementById("sectionTitle"),
@@ -52,6 +57,23 @@ elements.bannerInput.addEventListener("change", async () => {
   persistAndRender();
 });
 
+elements.iconInput.addEventListener("change", async () => {
+  const [file] = elements.iconInput.files;
+
+  if (!file) {
+    return;
+  }
+
+  state.icon = await resizeImage(file, 96, 96);
+  elements.iconInput.value = "";
+  persistAndRender();
+});
+
+elements.removeIcon.addEventListener("click", () => {
+  state.icon = "";
+  persistAndRender();
+});
+
 elements.removeBanner.addEventListener("click", () => {
   state.banner = "";
   persistAndRender();
@@ -81,7 +103,7 @@ elements.tileForm.addEventListener("submit", async (event) => {
     id: crypto.randomUUID(),
     title: elements.tileTitle.value.trim(),
     url: normalizeUrl(elements.tileUrl.value.trim()),
-    image: await resizeImage(file, 30, 30)
+    image: await resizeImage(file, 56, 56)
   });
 
   elements.tileForm.reset();
@@ -127,6 +149,7 @@ elements.sections.addEventListener("change", (event) => {
 
 function render() {
   elements.pageTitle.textContent = state.title || DEFAULT_STATE.title;
+  elements.pageIcon.src = state.icon || DEFAULT_PAGE_ICON;
   document.title = state.title || DEFAULT_STATE.title;
   elements.titleInput.value = state.title || DEFAULT_STATE.title;
   elements.hero.style.backgroundImage = state.banner

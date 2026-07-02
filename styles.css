@@ -80,6 +80,21 @@ h1 {
   letter-spacing: 0;
 }
 
+.brand-title {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2.5vw, 24px);
+}
+
+.brand-title__icon {
+  width: clamp(54px, 9vw, 92px);
+  height: clamp(54px, 9vw, 92px);
+  flex: 0 0 auto;
+  border-radius: 18px;
+  object-fit: cover;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.28);
+}
+
 .shell {
   width: min(1120px, calc(100% - 32px));
   margin: 24px auto 56px;
@@ -101,10 +116,16 @@ body.is-editing .add-service {
   display: block;
 }
 
-.settings__grid,
+.settings__grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) minmax(190px, 1fr) minmax(190px, 1fr) auto auto;
+  gap: 12px;
+  align-items: end;
+}
+
 .tile-form {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 12px;
   align-items: end;
 }
@@ -137,7 +158,6 @@ input[type="file"] {
   padding: 8px;
 }
 
-.settings__grid label:first-child,
 .tile-form label:nth-child(2) {
   grid-column: span 2;
 }
@@ -188,7 +208,7 @@ input[type="file"] {
 }
 
 .services {
-  min-height: 160px;
+  min-height: 120px;
 }
 
 .sections {
@@ -245,8 +265,8 @@ body.is-editing .service-section__actions {
 
 .tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 10px;
 }
 
 .tile {
@@ -266,19 +286,19 @@ body.is-editing .service-section__actions {
 .tile__link {
   display: grid;
   justify-items: center;
-  gap: 12px;
-  min-height: 136px;
-  padding: 22px 14px 18px;
+  gap: 9px;
+  min-height: 108px;
+  padding: 16px 10px 12px;
   color: inherit;
   text-align: center;
   text-decoration: none;
 }
 
 .tile__image {
-  width: 30px;
-  height: 30px;
+  width: 46px;
+  height: 46px;
   object-fit: cover;
-  border-radius: 6px;
+  border-radius: 10px;
 }
 
 .tile__title {
@@ -366,23 +386,26 @@ body.is-editing .tile__actions {
     max-width: 9ch;
   }
 
+  .brand-title {
+    align-items: flex-start;
+  }
+
   .settings__grid,
   .tile-form,
   .section-form {
     grid-template-columns: 1fr;
   }
 
-  .settings__grid label:first-child,
   .tile-form label:nth-child(2) {
     grid-column: auto;
   }
 
   .tiles {
-    grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
   }
 
   .tile__link {
-    min-height: 122px;
-    padding: 20px 10px 14px;
+    min-height: 104px;
+    padding: 14px 8px 12px;
   }
 }

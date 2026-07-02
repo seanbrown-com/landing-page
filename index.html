@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Home Services</title>
-    <link rel="stylesheet" href="styles.css?v=1">
+    <link rel="stylesheet" href="styles.css?v=2">
   </head>
   <body>
     <header class="hero" id="hero">
@@ -12,7 +12,10 @@
       <div class="hero__content">
         <div>
           <p class="eyebrow">Home network</p>
-          <h1 id="pageTitle">Home Services</h1>
+          <div class="brand-title">
+            <img id="pageIcon" class="brand-title__icon" src="assets/home-apps.svg" alt="">
+            <h1 id="pageTitle">Home Services</h1>
+          </div>
         </div>
         <button class="icon-button edit-toggle" id="editToggle" type="button" aria-pressed="false" title="Edit services">
           <span aria-hidden="true">✎</span>
@@ -32,7 +35,12 @@
             <span>Banner image</span>
             <input id="bannerInput" type="file" accept="image/*">
           </label>
+          <label>
+            <span>Page icon</span>
+            <input id="iconInput" type="file" accept="image/*">
+          </label>
           <button id="removeBanner" class="ghost-button" type="button">Remove banner</button>
+          <button id="removeIcon" class="ghost-button" type="button">Reset icon</button>
         </div>
       </section>
 
@@ -103,6 +111,6 @@
       </article>
     </template>
 
-    <script src="app.js?v=1"></script>
+    <script src="app.js?v=2"></script>
   </body>
 </html>
