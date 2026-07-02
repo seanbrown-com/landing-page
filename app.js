@@ -27,6 +27,7 @@ const elements = {
   tileUrl: document.getElementById("tileUrl"),
   tileImage: document.getElementById("tileImage"),
   tileSection: document.getElementById("tileSection"),
+  formStatus: document.getElementById("formStatus"),
   sections: document.getElementById("sections"),
   sectionTemplate: document.getElementById("sectionTemplate"),
   tileTemplate: document.getElementById("tileTemplate")
@@ -82,33 +83,43 @@ elements.removeBanner.addEventListener("click", () => {
 elements.sectionForm.addEventListener("submit", (event) => {
   event.preventDefault();
 
-  const title = elements.sectionTitle.value.trim() || `Section ${state.sections.length + 1}`;
-  state.sections.push(createSection(title));
-  elements.sectionForm.reset();
-  persistAndRender();
+  try {
+    const title = elements.sectionTitle.value.trim() || `Section ${state.sections.length + 1}`;
+    state.sections.push(createSection(title));
+    elements.sectionForm.reset();
+    clearStatus();
+    persistAndRender();
+  } catch (error) {
+    showStatus(error);
+  }
 });
 
 elements.tileForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
-  const [file] = elements.tileImage.files;
+  try {
+    const [file] = elements.tileImage.files;
 
-  if (!file) {
-    return;
+    if (!file) {
+      return;
+    }
+
+    const section = findSection(elements.tileSection.value) || ensureSection();
+
+    section.tiles.push({
+      id: createId(),
+      title: elements.tileTitle.value.trim(),
+      url: normalizeUrl(elements.tileUrl.value.trim()),
+      image: await resizeImage(file, 56, 56)
+    });
+
+    elements.tileForm.reset();
+    elements.tileSection.value = section.id;
+    clearStatus();
+    persistAndRender();
+  } catch (error) {
+    showStatus(error);
   }
-
-  const section = findSection(elements.tileSection.value) || ensureSection();
-
-  section.tiles.push({
-    id: crypto.randomUUID(),
-    title: elements.tileTitle.value.trim(),
-    url: normalizeUrl(elements.tileUrl.value.trim()),
-    image: await resizeImage(file, 56, 56)
-  });
-
-  elements.tileForm.reset();
-  elements.tileSection.value = section.id;
-  persistAndRender();
 });
 
 elements.sections.addEventListener("click", (event) => {
@@ -291,7 +302,7 @@ function ensureSection() {
 
 function createSection(title) {
   return {
-    id: crypto.randomUUID(),
+    id: createId(),
     title,
     tiles: []
   };
@@ -304,6 +315,14 @@ function findSection(sectionId) {
 function persistAndRender() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   render();
+}
+
+function clearStatus() {
+  elements.formStatus.textContent = "";
+}
+
+function showStatus(error) {
+  elements.formStatus.textContent = error?.message || "Something went wrong. Please try again.";
 }
 
 function loadState() {
@@ -342,7 +361,7 @@ function normalizeSection(section) {
   }
 
   return {
-    id: section.id || crypto.randomUUID(),
+    id: section.id || createId(),
     title: section.title,
     tiles: section.tiles.filter(isValidTile)
   };
@@ -350,10 +369,19 @@ function normalizeSection(section) {
 
 function createSectionFromTiles(title, tiles) {
   return {
-    id: crypto.randomUUID(),
+    id: createId(),
     title,
     tiles: tiles.filter(isValidTile)
   };
+}
+
+function createId() {
+  if (globalThis.crypto?.randomUUID) {
+    return globalThis.crypto.randomUUID();
+  }
+
+  const randomPart = Math.random().toString(36).slice(2, 10);
+  return `id-${Date.now().toString(36)}-${randomPart}`;
 }
 
 function isValidTile(tile) {
