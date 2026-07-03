@@ -84,6 +84,10 @@ if [[ -n "$SERVICE_NAME" ]]; then
   service_path="/etc/systemd/system/${SERVICE_NAME}.service"
   tmp_service="$(mktemp)"
 
+  log "ensuring shared data directory is writable by $SERVICE_USER"
+  run_as_root install -d -o "$SERVICE_USER" -g "$SERVICE_USER" "$serve_dir/data"
+  run_as_root chown -R "$SERVICE_USER:$SERVICE_USER" "$serve_dir/data"
+
   cat > "$tmp_service" <<SERVICE
 [Unit]
 Description=Home Network Landing Page

@@ -335,7 +335,7 @@ async function loadSharedState() {
     const response = await fetch("api/state", { cache: "no-store" });
 
     if (!response.ok) {
-      setSyncStatus("Server sync is not available; this browser is using local data only.");
+      setSyncStatus(`Server sync is not available (HTTP ${response.status}); this browser is using local data only.`);
       return;
     }
 
@@ -351,8 +351,8 @@ async function loadSharedState() {
     saveLocalState();
     render();
     setSyncStatus("Server sync is active.");
-  } catch {
-    setSyncStatus("Server sync is not available; this browser is using local data only.");
+  } catch (error) {
+    setSyncStatus(`Server sync is not available (${error.message}); this browser is using local data only.`);
     // Static file usage falls back to localStorage.
   }
 }
@@ -371,12 +371,12 @@ async function saveSharedState(options = {}) {
     });
 
     if (!response.ok) {
-      throw new Error("Server rejected the save.");
+      throw new Error(`HTTP ${response.status}`);
     }
 
     setSyncStatus(options.showSuccess ? "Published this browser to the server." : "Server sync is active.");
-  } catch {
-    setSyncStatus("Could not publish to the server; this browser is using local data only.");
+  } catch (error) {
+    setSyncStatus(`Could not publish to the server (${error.message}); this browser is using local data only.`);
     // Static file usage falls back to localStorage.
   }
 }

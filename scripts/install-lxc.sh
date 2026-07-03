@@ -77,7 +77,8 @@ for required_file in index.html styles.css app.js server.py assets/home-apps.svg
   [[ -f "$INSTALL_DIR/$required_file" ]] || fail "missing required file: $INSTALL_DIR/$required_file"
 done
 
-run_as_root chown -R "$SERVICE_USER:$SERVICE_USER" "$INSTALL_DIR"
+run_as_root install -d -o "$SERVICE_USER" -g "$SERVICE_USER" "$INSTALL_DIR/data"
+run_as_root chown -R "$SERVICE_USER:$SERVICE_USER" "$INSTALL_DIR/data"
 
 service_path="/etc/systemd/system/${SERVICE_NAME}.service"
 tmp_service="$(mktemp)"

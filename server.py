@@ -56,10 +56,14 @@ class LandingPageHandler(SimpleHTTPRequestHandler):
             self.send_error(HTTPStatus.BAD_REQUEST, "state payload must be JSON")
             return
 
-        DATA_DIR.mkdir(exist_ok=True)
-        tmp_file = STATE_FILE.with_suffix(".json.tmp")
-        tmp_file.write_text(json.dumps(parsed, separators=(",", ":")), encoding="utf-8")
-        tmp_file.replace(STATE_FILE)
+        try:
+            DATA_DIR.mkdir(exist_ok=True)
+            tmp_file = STATE_FILE.with_suffix(".json.tmp")
+            tmp_file.write_text(json.dumps(parsed, separators=(",", ":")), encoding="utf-8")
+            tmp_file.replace(STATE_FILE)
+        except OSError as error:
+            self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR, f"could not save state: {error}")
+            return
 
         response = b'{"ok":true}'
         self.send_response(HTTPStatus.OK)
