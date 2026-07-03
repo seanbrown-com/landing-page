@@ -36,7 +36,7 @@ button {
 
 .hero {
   position: relative;
-  min-height: clamp(220px, 38vh, 380px);
+  min-height: clamp(168px, 30vh, 300px);
   background:
     linear-gradient(135deg, rgba(16, 18, 20, 0.88), rgba(16, 18, 20, 0.28)),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='900' viewBox='0 0 1600 900'%3E%3Crect width='1600' height='900' fill='%23101214'/%3E%3Cpath d='M0 580c188-98 349-72 482 78 165 185 391 154 676-94 146-127 293-174 442-142v478H0z' fill='%2320262d'/%3E%3Cpath d='M0 705c245-74 450-53 614 62 157 111 323 114 498 9 151-91 314-129 488-114v238H0z' fill='%233fbf9f' fill-opacity='.28'/%3E%3Ccircle cx='1230' cy='214' r='142' fill='%23f1b24a' fill-opacity='.26'/%3E%3C/svg%3E");
@@ -60,7 +60,7 @@ button {
   width: min(1120px, calc(100% - 32px));
   min-height: inherit;
   margin: 0 auto;
-  padding: 56px 0 48px;
+  padding: 34px 0 32px;
 }
 
 .eyebrow {
@@ -75,7 +75,7 @@ button {
 h1 {
   max-width: 12ch;
   margin: 0;
-  font-size: clamp(2.8rem, 7vw, 6.8rem);
+  font-size: clamp(2.3rem, 6.2vw, 5.8rem);
   line-height: 0.95;
   letter-spacing: 0;
 }
@@ -87,8 +87,8 @@ h1 {
 }
 
 .brand-title__icon {
-  width: clamp(54px, 9vw, 92px);
-  height: clamp(54px, 9vw, 92px);
+  width: clamp(48px, 7.6vw, 78px);
+  height: clamp(48px, 7.6vw, 78px);
   flex: 0 0 auto;
   border-radius: 18px;
   object-fit: cover;
@@ -180,6 +180,7 @@ input[type="file"] {
   align-items: center;
   gap: 8px;
   flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .primary-button {
@@ -389,16 +390,18 @@ body.is-editing .tile__actions {
 @media (max-width: 780px) {
   .hero__content {
     align-items: flex-start;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: flex-end;
+    gap: 12px;
   }
 
   h1 {
-    max-width: 9ch;
+    max-width: 10ch;
   }
 
   .brand-title {
-    align-items: flex-start;
+    align-items: center;
+    min-width: 0;
   }
 
   .settings__grid,

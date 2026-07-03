@@ -51,14 +51,29 @@ if [[ -d "$INSTALL_DIR/.git" ]]; then
   run_as_root git -C "$INSTALL_DIR" pull --ff-only origin "$BRANCH"
 else
   if [[ -e "$INSTALL_DIR" ]]; then
-    fail "$INSTALL_DIR exists but is not a git checkout"
-  fi
+    log "$INSTALL_DIR exists but is not a git checkout; adopting existing install"
+    parent_dir="$(dirname -- "$INSTALL_DIR")"
+    install_name="$(basename -- "$INSTALL_DIR")"
+    backup_dir="${INSTALL_DIR}.backup.$(date +%Y%m%d%H%M%S)"
+    tmp_dir="$(mktemp -d "${parent_dir}/${install_name}.clone.XXXXXX")"
 
-  log "cloning $REPO_URL into $INSTALL_DIR"
-  run_as_root git clone --branch "$BRANCH" "$REPO_URL" "$INSTALL_DIR"
+    run_as_root git clone --branch "$BRANCH" "$REPO_URL" "$tmp_dir"
+
+    if [[ -d "$INSTALL_DIR/data" ]]; then
+      log "preserving existing data directory"
+      run_as_root cp -a "$INSTALL_DIR/data" "$tmp_dir/data"
+    fi
+
+    run_as_root mv "$INSTALL_DIR" "$backup_dir"
+    run_as_root mv "$tmp_dir" "$INSTALL_DIR"
+    log "old install moved to $backup_dir"
+  else
+    log "cloning $REPO_URL into $INSTALL_DIR"
+    run_as_root git clone --branch "$BRANCH" "$REPO_URL" "$INSTALL_DIR"
+  fi
 fi
 
-for required_file in index.html styles.css app.js assets/home-apps.svg; do
+for required_file in index.html styles.css app.js server.py assets/home-apps.svg; do
   [[ -f "$INSTALL_DIR/$required_file" ]] || fail "missing required file: $INSTALL_DIR/$required_file"
 done
 
@@ -75,7 +90,7 @@ After=network.target
 Type=simple
 User=$SERVICE_USER
 WorkingDirectory=$INSTALL_DIR
-ExecStart=/usr/bin/python3 -m http.server $PORT --bind 0.0.0.0
+ExecStart=/usr/bin/python3 server.py --port $PORT --host 0.0.0.0
 Restart=on-failure
 RestartSec=5
 

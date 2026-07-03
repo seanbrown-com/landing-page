@@ -9,6 +9,7 @@ const DEFAULT_STATE = {
 };
 
 const state = loadState();
+let saveTimer = 0;
 
 const elements = {
   hero: document.getElementById("hero"),
@@ -34,6 +35,7 @@ const elements = {
 };
 
 render();
+loadSharedState();
 
 elements.editToggle.addEventListener("click", () => {
   const isEditing = document.body.classList.toggle("is-editing");
@@ -313,8 +315,67 @@ function findSection(sectionId) {
 }
 
 function persistAndRender() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  saveLocalState();
   render();
+  scheduleSharedSave();
+}
+
+function saveLocalState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+async function loadSharedState() {
+  try {
+    const response = await fetch("api/state", { cache: "no-store" });
+
+    if (!response.ok) {
+      return;
+    }
+
+    const sharedState = normalizeSavedState(await response.json());
+
+    if (isEmptyState(sharedState) && !isEmptyState(state)) {
+      saveSharedState();
+      return;
+    }
+
+    replaceState(sharedState);
+    saveLocalState();
+    render();
+  } catch {
+    // Static file usage falls back to localStorage.
+  }
+}
+
+function scheduleSharedSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveSharedState, 250);
+}
+
+async function saveSharedState() {
+  try {
+    await fetch("api/state", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(state)
+    });
+  } catch {
+    // Static file usage falls back to localStorage.
+  }
+}
+
+function replaceState(nextState) {
+  state.title = nextState.title;
+  state.icon = nextState.icon;
+  state.banner = nextState.banner;
+  state.sections = nextState.sections;
+}
+
+function isEmptyState(nextState) {
+  return (nextState.title || DEFAULT_STATE.title) === DEFAULT_STATE.title
+    && !nextState.icon
+    && !nextState.banner
+    && nextState.sections.length === 0;
 }
 
 function clearStatus() {
@@ -327,29 +388,31 @@ function showStatus(error) {
 
 function loadState() {
   try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-
-    if (!saved) {
-      return { ...DEFAULT_STATE, sections: [] };
-    }
-
-    if (Array.isArray(saved.sections)) {
-      return {
-        ...DEFAULT_STATE,
-        ...saved,
-        sections: saved.sections.map(normalizeSection).filter(Boolean)
-      };
-    }
-
-    if (Array.isArray(saved.tiles)) {
-      return {
-        ...DEFAULT_STATE,
-        ...saved,
-        sections: [createSectionFromTiles(DEFAULT_SECTION_TITLE, saved.tiles)]
-      };
-    }
+    return normalizeSavedState(JSON.parse(localStorage.getItem(STORAGE_KEY)));
   } catch {
     return { ...DEFAULT_STATE, sections: [] };
+  }
+}
+
+function normalizeSavedState(saved) {
+  if (!saved) {
+    return { ...DEFAULT_STATE, sections: [] };
+  }
+
+  if (Array.isArray(saved.sections)) {
+    return {
+      ...DEFAULT_STATE,
+      ...saved,
+      sections: saved.sections.map(normalizeSection).filter(Boolean)
+    };
+  }
+
+  if (Array.isArray(saved.tiles)) {
+    return {
+      ...DEFAULT_STATE,
+      ...saved,
+      sections: [createSectionFromTiles(DEFAULT_SECTION_TITLE, saved.tiles)]
+    };
   }
 
   return { ...DEFAULT_STATE, sections: [] };
