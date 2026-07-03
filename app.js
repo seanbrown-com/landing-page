@@ -21,8 +21,6 @@ const elements = {
   bannerInput: document.getElementById("bannerInput"),
   removeIcon: document.getElementById("removeIcon"),
   removeBanner: document.getElementById("removeBanner"),
-  publishLocal: document.getElementById("publishLocal"),
-  syncStatus: document.getElementById("syncStatus"),
   sectionForm: document.getElementById("sectionForm"),
   sectionTitle: document.getElementById("sectionTitle"),
   tileForm: document.getElementById("tileForm"),
@@ -82,10 +80,6 @@ elements.removeIcon.addEventListener("click", () => {
 elements.removeBanner.addEventListener("click", () => {
   state.banner = "";
   persistAndRender();
-});
-
-elements.publishLocal.addEventListener("click", async () => {
-  await saveSharedState({ showSuccess: true });
 });
 
 elements.sectionForm.addEventListener("submit", (event) => {
@@ -334,25 +328,14 @@ async function loadSharedState() {
   try {
     const response = await fetch("api/state", { cache: "no-store" });
 
-    if (!response.ok) {
-      setSyncStatus(`Server sync is not available (HTTP ${response.status}); this browser is using local data only.`);
-      return;
-    }
+    if (!response.ok) return;
 
     const sharedState = normalizeSavedState(await response.json());
-
-    if (isEmptyState(sharedState) && !isEmptyState(state)) {
-      setSyncStatus("Server is blank. Publishing this browser's saved page...");
-      await saveSharedState({ showSuccess: true });
-      return;
-    }
 
     replaceState(sharedState);
     saveLocalState();
     render();
-    setSyncStatus("Server sync is active.");
-  } catch (error) {
-    setSyncStatus(`Server sync is not available (${error.message}); this browser is using local data only.`);
+  } catch {
     // Static file usage falls back to localStorage.
   }
 }
@@ -362,7 +345,7 @@ function scheduleSharedSave() {
   saveTimer = setTimeout(saveSharedState, 250);
 }
 
-async function saveSharedState(options = {}) {
+async function saveSharedState() {
   try {
     const response = await fetch("api/state", {
       method: "PUT",
@@ -373,10 +356,8 @@ async function saveSharedState(options = {}) {
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
     }
-
-    setSyncStatus(options.showSuccess ? "Published this browser to the server." : "Server sync is active.");
   } catch (error) {
-    setSyncStatus(`Could not publish to the server (${error.message}); this browser is using local data only.`);
+    showStatus(`Could not save to the server (${error.message}). Changes are saved in this browser only.`);
     // Static file usage falls back to localStorage.
   }
 }
@@ -388,23 +369,14 @@ function replaceState(nextState) {
   state.sections = nextState.sections;
 }
 
-function isEmptyState(nextState) {
-  return (nextState.title || DEFAULT_STATE.title) === DEFAULT_STATE.title
-    && !nextState.icon
-    && !nextState.banner
-    && nextState.sections.length === 0;
-}
-
 function clearStatus() {
   elements.formStatus.textContent = "";
 }
 
 function showStatus(error) {
-  elements.formStatus.textContent = error?.message || "Something went wrong. Please try again.";
-}
-
-function setSyncStatus(message) {
-  elements.syncStatus.textContent = message;
+  elements.formStatus.textContent = typeof error === "string"
+    ? error
+    : error?.message || "Something went wrong. Please try again.";
 }
 
 function loadState() {
