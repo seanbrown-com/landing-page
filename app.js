@@ -21,6 +21,8 @@ const elements = {
   bannerInput: document.getElementById("bannerInput"),
   removeIcon: document.getElementById("removeIcon"),
   removeBanner: document.getElementById("removeBanner"),
+  publishLocal: document.getElementById("publishLocal"),
+  syncStatus: document.getElementById("syncStatus"),
   sectionForm: document.getElementById("sectionForm"),
   sectionTitle: document.getElementById("sectionTitle"),
   tileForm: document.getElementById("tileForm"),
@@ -80,6 +82,10 @@ elements.removeIcon.addEventListener("click", () => {
 elements.removeBanner.addEventListener("click", () => {
   state.banner = "";
   persistAndRender();
+});
+
+elements.publishLocal.addEventListener("click", async () => {
+  await saveSharedState({ showSuccess: true });
 });
 
 elements.sectionForm.addEventListener("submit", (event) => {
@@ -329,20 +335,24 @@ async function loadSharedState() {
     const response = await fetch("api/state", { cache: "no-store" });
 
     if (!response.ok) {
+      setSyncStatus("Server sync is not available; this browser is using local data only.");
       return;
     }
 
     const sharedState = normalizeSavedState(await response.json());
 
     if (isEmptyState(sharedState) && !isEmptyState(state)) {
-      saveSharedState();
+      setSyncStatus("Server is blank. Publishing this browser's saved page...");
+      await saveSharedState({ showSuccess: true });
       return;
     }
 
     replaceState(sharedState);
     saveLocalState();
     render();
+    setSyncStatus("Server sync is active.");
   } catch {
+    setSyncStatus("Server sync is not available; this browser is using local data only.");
     // Static file usage falls back to localStorage.
   }
 }
@@ -352,14 +362,21 @@ function scheduleSharedSave() {
   saveTimer = setTimeout(saveSharedState, 250);
 }
 
-async function saveSharedState() {
+async function saveSharedState(options = {}) {
   try {
-    await fetch("api/state", {
+    const response = await fetch("api/state", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(state)
     });
+
+    if (!response.ok) {
+      throw new Error("Server rejected the save.");
+    }
+
+    setSyncStatus(options.showSuccess ? "Published this browser to the server." : "Server sync is active.");
   } catch {
+    setSyncStatus("Could not publish to the server; this browser is using local data only.");
     // Static file usage falls back to localStorage.
   }
 }
@@ -384,6 +401,10 @@ function clearStatus() {
 
 function showStatus(error) {
   elements.formStatus.textContent = error?.message || "Something went wrong. Please try again.";
+}
+
+function setSyncStatus(message) {
+  elements.syncStatus.textContent = message;
 }
 
 function loadState() {

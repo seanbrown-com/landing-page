@@ -123,6 +123,23 @@ body.is-editing .add-service {
   align-items: end;
 }
 
+.sync-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.sync-panel__status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
 .tile-form {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -408,6 +425,11 @@ body.is-editing .tile__actions {
   .tile-form,
   .section-form {
     grid-template-columns: 1fr;
+  }
+
+  .sync-panel {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .tile-form label:nth-child(2) {
